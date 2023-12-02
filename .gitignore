@@ -1,0 +1,6 @@
+.env
+__pycache__/
+Switzerland_shapefile/
+*.png
+*.ipynb
+*.json
