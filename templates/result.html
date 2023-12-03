@@ -1,0 +1,54 @@
+<!-- templates/result.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Web App - Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h2>Result</h2>
+    <p>You entered: {{ data_input }}</p>
+    <p>Nice Choice!</p>
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Example Image">
+    <a href="/">Go back to the homepage</a>
+    <h2>Here are our suggestions!:</h2>
+    <!-- <div class="image-container" id="container1">
+        <img src="{{ url_for('static', filename='images/car.png') }}" alt="bouncing_exhaust" class="bouncing-image">
+        <img src="{{ url_for('static', filename='images/exhaust_n.png') }}" alt="Image 1" class="positioned-image" id="exhaust">
+        <h1>text text text</h1>
+    </div>
+    <div class="image-container" id="container2">
+        <img src="{{ url_for('static', filename='images/car.png') }}" alt="bouncing_exhaust" class="bouncing-image">
+        <img src="{{ url_for('static', filename='images/exhaust_n.png') }}" alt="Image 1" class="positioned-image" id="exhaust">
+        <h1>text text text</h1>
+    </div> -->
+    {% for option in datadict %}
+        <h2>{{ option }}</h2>
+        <table>
+            <thead>
+                <tr>
+                    {% for column in datadict[option] %}
+                        <th>{{ column }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    {% for column in datadict[option] %}
+                        <td>{{ datadict[option][column] }}</td>
+                    {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+    {% endfor %}
+
+    <h1>Map with Markers</h1>
+
+    <!-- Embed the Folium map HTML using iframe -->
+    <iframe src="{{ url_for('static', filename='map_with_markers_and_route.html') }}" width="60%" height="600px" frameborder="0"></iframe>
+
+</body>
+</html>

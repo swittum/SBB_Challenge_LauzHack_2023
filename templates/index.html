@@ -1,0 +1,55 @@
+<!-- templates/index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Web App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Example Image" class="moving-image">
+</head>
+<body>
+    <h1>SBB vs. Car - the independent comparison</h1>
+    <form action="/submit" method="post">
+        <div>
+            <label for="start">Enter Start:</label>
+            <input type="text" id="start" name="start">
+        </div>
+        <div>
+            <label for="dest">Enter Destination:</label>
+            <input type="text" id="dest" name="dest">
+        </div>
+        <div>
+            <label for="time">Select Time:</label>
+            <input type="time" id="time" name="time">
+        </div>
+        <button type="submit">Submit</button>
+    </form>
+
+    {% for option in datadict %}
+        <h2>{{ option }}</h2>
+        <table>
+            <thead>
+                <tr>
+                    {% for column in datadict[option] %}
+                        <th>{{ column }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    {% for column in datadict[option] %}
+                        <td>{{ datadict[option][column] }}</td>
+                    {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+    {% endfor %}
+
+    <h1>Map with Markers</h1>
+
+    <!-- Embed the Folium map HTML using iframe -->
+    <iframe src="{{ url_for('static', filename='map_with_markers_and_route.html') }}" width="60%" height="600px" frameborder="0"></iframe>
+
+</body>

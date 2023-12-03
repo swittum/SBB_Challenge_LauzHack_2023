@@ -30,7 +30,7 @@ def compare_connections(origin, destination):
     duration_final_combi = 1e10
     route_final_combi = None
 
-    for i in range(5):
+    for i in range(1):
         coordinates_pnr_close = coordinates_pnr[:, i]
         coordinates_pnr_close = coordinates_pnr_close.tolist()
         duration_pnr, route_to_pnr = get_driving_time(origin, coordinates_pnr_close)
