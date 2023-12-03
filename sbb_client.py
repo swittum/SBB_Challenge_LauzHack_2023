@@ -15,10 +15,6 @@ def timestring_to_minutes(duration_str):
     return duration_float_minutes
 
 
-# API_URL = "https://journey-service-int.api.sbb.ch"
-# CLIENT_SECRET = "MU48Q~IuD6Iawz3QfvkmMiKHtfXBf-ffKoKTJdt5"
-# CLIENT_ID = "f132a280-1571-4137-86d7-201641098ce8"
-# SCOPE = "c11fa6b1-edab-4554-a43d-8ab71b016325/.default"
 API_URL = dotenv.get_key('.env', 'API_URL')
 CLIENT_SECRET = dotenv.get_key('.env', 'CLIENT_SECRET')
 CLIENT_ID = dotenv.get_key('.env', 'CLIENT_ID')
@@ -65,39 +61,54 @@ def get_sbb_journey(origin, destination):
     sbb_output = requests.post('https://journey-service-int.api.sbb.ch/v3/trips/by-origin-destination',
                         headers=headers, json=json_data).json()
     trips = sbb_output['trips']
-    durations_sorted = [0]*len(trips)
-    routes_sorted = []
+    output_data = []
     for i, trip in enumerate(trips):
-        routes_sorted.append([])
+        output_data.append({})
+        # Data to be put into dictionary
+        route = []
+        changing_points = []
+        changing_times = []
+        modes = []
+        total_duration = 0
         legs = trip['legs']
+        
         for leg in legs:
-            # if 'start' in leg:
-            #     starttime = leg['start']['timeAimed']
-            if 'serviceJourney' in leg:
+            mode = leg['mode']
+            if mode == 'FOOT':
+                changing_points.append(leg['end']['place']['name'])
+                changing_times.append(leg['end']['timeAimed'])
+            else:
                 stoppoints = leg['serviceJourney']['stopPoints']
                 for stoppoint in stoppoints:
                     stoppoint_coordinates = stoppoint['place']['centroid']['coordinates']
-                    routes_sorted[i].append(stoppoint_coordinates)
+                    route.append(stoppoint_coordinates)
+                changing_points.append(stoppoint['place']['name'])
+                changing_times.append(stoppoint['arrival']['timeAimed'])
             duration = timestring_to_minutes(leg['duration'])
-            durations_sorted[i] += duration
-
-    durations_sorted = np.array(durations_sorted)
-    indices = np.argsort(durations_sorted)
-    durations_sorted = durations_sorted[indices]
-    routes_sorted = [routes_sorted[i] for i in indices]
+            total_duration += duration
+        output_data[i]['route'] = np.array(route)
+        output_data[i]['changing_points'] = changing_points
+        output_data[i]['changing_times'] = changing_times
+        output_data[i]['modes'] = modes
+        output_data[i]['duration'] = total_duration
+        
+    durations = [output_data[i]['duration'] for i in range(len(output_data))]
+    indices = np.argsort(durations)
+    output_data_sorted = [output_data[i] for i in indices]
     sbb_output['trips'] = [sbb_output['trips'][i] for i in indices]
-    return durations_sorted, routes_sorted, sbb_output
+    return output_data, sbb_output
 
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
     from coordinates import COORDINATES_SG, COORDINATES_GENEVA
-    durations, routes, sbb_output = get_sbb_journey(COORDINATES_SG, COORDINATES_GENEVA)
+    output_data, sbb_output = get_sbb_journey(COORDINATES_SG, COORDINATES_GENEVA)
     with open('output.json', 'w') as file:
         json.dump(sbb_output, file, indent=4)
+    durations = [output_data[i]['duration'] for i in range(len(output_data))]
+    routes = [output_data[i]['route'] for i in range(len(output_data))]
     plt.figure()
     for (duration, route) in zip(durations, routes):
-        route = np.array(route)
         plt.plot(route[:, 0], route[:, 1], label=f"{duration:.0f} min", ls='--', marker='o', markersize=3)
     plt.legend()
     plt.savefig('sbb_routes.png')

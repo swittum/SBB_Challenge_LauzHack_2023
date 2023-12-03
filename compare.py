@@ -11,10 +11,11 @@ def compare_connections(origin, destination):
     P&R, then SBB to destination
     """
     # Method 1: SBB from origin to destination
-    durations_sbb_combi, routes_sbb_combi, sbb_output_combi = get_sbb_journey(origin, destination)
+    data_sbb, sbb_output_combi = get_sbb_journey(origin, destination)
     # Pick only the fastest route
-    duration_sbb = durations_sbb_combi[0]
-    route_sbb = np.array(routes_sbb_combi[0])
+    data_sbb_fastest = data_sbb[0]
+    duration_sbb = data_sbb_fastest['duration']
+    route_sbb = data_sbb_fastest['route']
     print(f"Duration SBB: {duration_sbb:.0f} min")
 
     # Method 2: Car from origin to destination
@@ -33,11 +34,12 @@ def compare_connections(origin, destination):
         coordinates_pnr_close = coordinates_pnr[:, i]
         coordinates_pnr_close = coordinates_pnr_close.tolist()
         duration_pnr, route_to_pnr = get_driving_time(origin, coordinates_pnr_close)
-        durations_sbb_combi, routes_sbb_combi, sbb_output_combi = get_sbb_journey(coordinates_pnr_close, destination)
-        duration_total = duration_pnr + durations_sbb_combi[0]
+        data_sbb_combi, sbb_output_combi = get_sbb_journey(coordinates_pnr_close, destination)
+        data_sbb_combi_fastest = data_sbb_combi[0]
+        duration_total = duration_pnr + data_sbb_combi_fastest['duration']
         if duration_total < duration_final_combi:
             duration_final_combi = duration_total
-            route_final_combi = np.array(routes_sbb_combi[0])
+            route_final_combi = data_sbb_combi_fastest['route']
 
     print(f"Duration PNR: {duration_final_combi:.0f} min")
     return [route_sbb, duration_sbb], [routes_car, duration_car], [route_to_pnr, route_final_combi, duration_total]
