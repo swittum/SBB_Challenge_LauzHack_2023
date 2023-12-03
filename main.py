@@ -1,23 +1,20 @@
-import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
+from compare import compare_connections
+from coordinates import COORDINATES_SG, COORDINATES_BIEL, COORDINATES_GENEVA
 
-from parknride import get_closest_station
-from sbb_client import get_journey
-from sbb_client import coords_geneva, coords_biel, coords_SG
-from cartravel import get_driving_time
 
-indices, distances, coords = get_closest_station(coords_geneva[1], coords_geneva[0])
-ycoord, xcoord = coords
-startpoint = [xcoord[0], ycoord[0]]
+sbb, car, mix = compare_connections(COORDINATES_GENEVA, COORDINATES_SG)
+route_sbb, duration_sbb = sbb[0], sbb[1]
+route_car, duration_car = car[0], car[1]
+route_mix1, route_mix2, duration_mix = mix[0], mix[1], mix[2]
 
-durations, routes, out = get_journey(startpoint, coords_biel)
-duration, coords = get_driving_time(startpoint, coords_biel)
 
-plt.scatter(xcoord, ycoord)
-for (route, duration) in zip(routes, durations):
-    route = np.array(route)
-    plt.plot(route[:, 0], route[:, 1], label=f"{duration:.0f} min", ls='--', marker='o', markersize=3)
-plt.plot(coords[:, 0], coords[:, 1], label=f"Car, duration={duration:.0f}", c='r')
+plt.plot(route_sbb[:, 0], route_sbb[:, 1], label=f"sbb: {duration_sbb:.0f}")
+plt.plot(route_car[:, 0], route_car[:, 1], label=f"car: {duration_car:.0f}")
+plt.plot(route_mix1[:, 0], route_mix1[:, 1], label=f"car: {duration_mix:.0f}", c="r", ls='--')
+plt.plot(route_mix2[:, 0], route_mix2[:, 1], c="r")
 plt.legend()
-plt.savefig('journey.png', dpi=300)
+plt.savefig('comparison.png', dpi=300)
+
+
+

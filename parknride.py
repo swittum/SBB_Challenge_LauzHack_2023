@@ -1,66 +1,69 @@
 from math import radians, sin, cos, sqrt, atan2 
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
+
+# Reading mobility data
 path = '/Users/simonwittum/Documents/Arbeit/LauzHack/SBB/data/mobilitat.csv'
-
 data = pd.read_csv(path, sep=';')
 
-import matplotlib.pyplot as plt
-tmp = data['Geopos']
-long, lat = [], []
-for el in tmp:
-    c1, c2 = el.split(',')
-    long.append(float(c2))
-    lat.append(float(c1))
-long = np.array(long)
-lat = np.array(lat)
 
-def calculate_distance(lat1, lon1, lat2, lon2):
-    # Convert latitude and longitude from degrees to radians
-    lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
-    
+# Extracting long- and latitudes
+geopositions = data['Geopos']
+longitudes, latitudes = [], []
+for geoposition in geopositions:
+    latitude_closest, longitude_closest = geoposition.split(',')
+    longitudes.append(float(longitude_closest))
+    latitudes.append(float(latitude_closest))
+longitudes = np.array(longitudes)
+latitudes = np.array(latitudes)
+
+
+def calculate_distance(long1, lat1, long2, lat2):
+    """
+    Takes long- and latitudes of two points on the globe and
+    calculates the distance between them in km
+    """
+    long1, lat1, long2, lat2 = map(radians, [long1, lat1, long2, lat2])
     # Haversine formula
-    dlon = lon2-lon1
+    dlon = long2-long1
     dlat = lat2-lat1
     a = sin(dlat/2)**2+cos(lat1)*cos(lat2)*sin(dlon/2)**2
     c = 2*atan2(sqrt(a), sqrt(1-a))
     distance = 6371*c
-
     return distance
 
-def get_closest_station(lat_person, long_person):
-    distances = []
-    for (lat_stat, lon_stat) in zip(lat, long):
-        distances.append(calculate_distance(lat_stat, lon_stat, lat_person, long_person))
 
-    distances = np.array(distances)
-    indices = np.argsort(distances)
-    distances = distances[indices]
-    lat_out = lat[indices]
-    long_out = long[indices]
-    coords = [lat_out, long_out]
-    
-    return indices, distances, coords
+def get_closest_pnr(longitude_start, latitude_start):
+    """
+    Takes long- and latitudes of a starting point and returns index position
+    of P&R with correspoding distances and coordinates sorted by distance
+    to the starting point
+    """
+    distances_sorted = []
+    for (longitude_pnr, latitude_pnr) in zip(longitudes, latitudes):
+        distances_sorted.append(calculate_distance(longitude_pnr, latitude_pnr, longitude_start, latitude_start))
+    distances_sorted = np.array(distances_sorted)
+    closest_pnr_index = np.argsort(distances_sorted)
+    distances_sorted = distances_sorted[closest_pnr_index]
+    longitudes_sorted = longitudes[closest_pnr_index]
+    latitudes_sorted = latitudes[closest_pnr_index]
+    coordinates_sorted = [longitudes_sorted, latitudes_sorted]
+    return closest_pnr_index, distances_sorted, coordinates_sorted
 
 
 if __name__ == '__main__':
 
-    # lat_ = 47.3769
-    # long_ = 8.5417
-
-    lat_ = 47.10115
-    long_ = 9.75996
-
-    indices, distances, coords = get_closest_station(lat_, long_)
-    c1 = lat[indices[0]]
-    c2 = long[indices[0]]
-
-    plt.scatter(long, lat)
-    plt.scatter(long_, lat_, c='r')
-    plt.scatter(c2, c1, c='b', marker='x')
-    plt.savefig('test.png', dpi=300)
-
-    # distances = get_closest_station(lat_, long_)
-    # indices = np.argsort(distances)
-    # distances = distances[indices]
+    longitude = 9.75996
+    latitude = 47.10115
+   
+    indices, distances, coordinates = get_closest_pnr(latitude, longitude)
+    longitude_closest = longitudes[indices[0]]
+    latitude_closest = latitudes[indices[0]]
+    print(coordinates)
+    
+    plt.scatter(longitudes, latitudes)
+    plt.scatter(longitude, latitude, c='r')
+    plt.scatter(longitude_closest, latitude_closest, c='b', marker='x')
+    plt.savefig('PNR_positions.png', dpi=300)
