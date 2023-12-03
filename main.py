@@ -42,10 +42,32 @@ def make_map_html(route_sbb, route_car, route_combi1, route_combi2):
     merged_list4 = [(route_combi2[i, 1], route_combi2[i, 0]) for i in range(0, len(route_combi2))]
 
     # Add a PolyLine to represent the route
-    folium.PolyLine(locations=merged_list, color='blue', weight=5, opacity=0.7).add_to(mymap)
-    folium.PolyLine(locations=merged_list2, color='red', weight=5, opacity=0.7).add_to(mymap)
-    folium.PolyLine(locations=merged_list3, color='green', weight=5, opacity=0.7).add_to(mymap)
-    folium.PolyLine(locations=merged_list4, color='green', weight=5, opacity=0.7).add_to(mymap)
+    polyline1 = folium.PolyLine(locations=merged_list, color='blue', weight=5, opacity=0.7, label='SBB').add_to(mymap)
+    polyline2 = folium.PolyLine(locations=merged_list2, color='red', weight=5, opacity=0.7, label='Car').add_to(mymap)
+    polyline3 = folium.PolyLine(locations=merged_list3, color='green', weight=5, opacity=0.7, label='Combi').add_to(mymap)
+    polyline4 = folium.PolyLine(locations=merged_list4, color='green', weight=5, opacity=0.7).add_to(mymap)
+    
+    # Add legend
+    polyline1.add_to(mymap)
+    polyline2.add_to(mymap)
+    polyline3.add_to(mymap)
+    polyline4.add_to(mymap)
+
+    # Create a custom legend
+    legend_html = '''
+        <div style="position: fixed; 
+                    bottom: 50px; left: 50px; width: 120px; height: 130px; 
+                    border:2px solid grey; z-index:9999; font-size:14px;
+                    background-color: white;
+                    ">
+        &nbsp; <b>Legend</b> <br>
+        &nbsp; SBB &nbsp; <i class="fa fa-map-marker fa-2x" style="color:blue"></i><br>
+        &nbsp; Car &nbsp; <i class="fa fa-map-marker fa-2x" style="color:red"></i><br>
+        &nbsp; Combi &nbsp; <i class="fa fa-map-marker fa-2x" style="color:green"></i>
+        </div>
+        '''
+
+    mymap.get_root().html.add_child(folium.Element(legend_html))
 
     # Save the map to an HTML file
     mymap.save("static/map_with_markers_and_route.html")
