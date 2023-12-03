@@ -35,7 +35,7 @@ def get_sbb_token():
                          data=params).json()
 
 
-def get_sbb_journey(origin, destination):
+def get_sbb_journey(origin, destination, time='13:07'):
     """
     Takes coordinates of origin and destination and returns durations, routes
     and verbose sbb_output sorted by duration
@@ -50,7 +50,7 @@ def get_sbb_journey(origin, destination):
         "origin": f"{str(origin)}",
         "destination": f"{str(destination)}",
         "date": "2023-04-18",   
-        "time": "13:07",  
+        "time": time,  
         "mobilityFilter":
             {
                 "walkSpeed": 50
@@ -60,7 +60,12 @@ def get_sbb_journey(origin, destination):
 
     sbb_output = requests.post('https://journey-service-int.api.sbb.ch/v3/trips/by-origin-destination',
                         headers=headers, json=json_data).json()
-    trips = sbb_output['trips']
+
+    try: 
+        trips = sbb_output['trips']
+    except:
+        raise ValueError('No trips found')
+
     output_data = []
     for i, trip in enumerate(trips):
         output_data.append({})
@@ -74,11 +79,14 @@ def get_sbb_journey(origin, destination):
         
         for leg in legs:
             mode = leg['mode']
+            modes.append(mode)
             if mode == 'FOOT':
-                changing_points.append(leg['end']['place']['name'])
-                changing_times.append(leg['end']['timeAimed'])
+                if leg['end']['place']['type'] != 'Address':
+                    changing_points.append(leg['end']['place']['name'])
+                    changing_times.append(leg['end']['timeAimed'])
             else:
                 stoppoints = leg['serviceJourney']['stopPoints']
+                n = len(stoppoints)
                 for stoppoint in stoppoints:
                     stoppoint_coordinates = stoppoint['place']['centroid']['coordinates']
                     route.append(stoppoint_coordinates)
@@ -101,8 +109,8 @@ def get_sbb_journey(origin, destination):
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
-    from coordinates import COORDINATES_SG, COORDINATES_GENEVA
-    output_data, sbb_output = get_sbb_journey(COORDINATES_SG, COORDINATES_GENEVA)
+    from coordinates import COORDINATES_BERN, COORDINATES_BASEL
+    output_data, sbb_output = get_sbb_journey(COORDINATES_BERN, COORDINATES_BASEL)
     with open('output.json', 'w') as file:
         json.dump(sbb_output, file, indent=4)
     durations = [output_data[i]['duration'] for i in range(len(output_data))]
