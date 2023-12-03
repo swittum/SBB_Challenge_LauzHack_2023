@@ -1,3 +1,4 @@
+import os
 from math import radians, sin, cos, sqrt, atan2 
 import pandas as pd
 import numpy as np
@@ -5,7 +6,7 @@ import matplotlib.pyplot as plt
 
 
 # Reading mobility data
-path = '/Users/simonwittum/Documents/Arbeit/LauzHack/SBB/data/mobilitat.csv'
+path = os.path.join(os.path.dirname(__file__), 'data', 'mobilitat.csv')
 data = pd.read_csv(path, sep=';')
 
 
@@ -61,7 +62,7 @@ if __name__ == '__main__':
     indices, distances, coordinates = get_closest_pnr(latitude, longitude)
     longitude_closest = longitudes[indices[0]]
     latitude_closest = latitudes[indices[0]]
-    print(coordinates)
+
     
     plt.scatter(longitudes, latitudes)
     plt.scatter(longitude, latitude, c='r')

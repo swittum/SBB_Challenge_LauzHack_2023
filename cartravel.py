@@ -30,14 +30,6 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     from coordinates import COORDINATES_SG, COORDINATES_GENEVA, COORDINATES_BIEL
 
-    origin = [6.13566, 46.30221]
-    destination = [6.16765465, 46.29848883]
-
     duration, coordinates = get_driving_time(COORDINATES_BIEL, COORDINATES_GENEVA)
     plt.plot(coordinates[:, 0], coordinates[:, 1])
     plt.savefig('car_route.png')
-
-    print(duration)
-
-
-
