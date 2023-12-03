@@ -7,4 +7,5 @@ Switzerland_shapefile/
 *.jpg
 *.ipynb
 *.json
+*.mov
 static/map_with_markers_and_route.html

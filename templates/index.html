@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flask Web App</title>
+    <title>Was geht SBB</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Example Image" class="moving-image">
 </head>
@@ -26,30 +26,34 @@
         </div>
         <button type="submit">Submit</button>
     </form>
+    {% if error %}
+        <div class="error-message">
+            Error: There was a problem with your input. Please check and try again.
+        </div>
+    {% endif %}
+    
+    <div class="slideshow-container">
+        <div class="mySlides">
+            <img src="{{ url_for('static', filename='images/photo1.jpg') }}" style="width:130%">
+        </div>
 
-    {% for option in datadict %}
-        <h2>{{ option }}</h2>
-        <table>
-            <thead>
-                <tr>
-                    {% for column in datadict[option] %}
-                        <th>{{ column }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    {% for column in datadict[option] %}
-                        <td>{{ datadict[option][column] }}</td>
-                    {% endfor %}
-                </tr>
-            </tbody>
-        </table>
-    {% endfor %}
+        <div class="mySlides">
+            <img src="{{ url_for('static', filename='images/photo2.jpg') }}" style="width:130%">
+        </div>
 
-    <h1>Map with Markers</h1>
+        <div class="mySlides">
+            <img src="{{ url_for('static', filename='images/photo3.jpg') }}" style="width:130%">
+        </div>
 
-    <!-- Embed the Folium map HTML using iframe -->
-    <iframe src="{{ url_for('static', filename='map_with_markers_and_route.html') }}" width="60%" height="600px" frameborder="0"></iframe>
+        <!-- Add more slides as needed -->
 
+        <!-- Optional: Add navigation dots -->
+        <div style="text-align:center">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <!-- Add more dots as needed -->
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='slideshow.js') }}"></script>
 </body>

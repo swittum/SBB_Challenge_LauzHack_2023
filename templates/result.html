@@ -5,16 +5,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flask Web App - Result</title>
+    <title>Results</title>
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Example Image">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <h2>Result</h2>
     <p>You entered: {{ data_input }}</p>
     <p>Nice Choice!</p>
-    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Example Image">
-    <a href="/">Go back to the homepage</a>
-    <h2>Here are our suggestions!:</h2>
+    <h2>Here are our suggestions:</h2>
     <!-- <div class="image-container" id="container1">
         <img src="{{ url_for('static', filename='images/car.png') }}" alt="bouncing_exhaust" class="bouncing-image">
         <img src="{{ url_for('static', filename='images/exhaust_n.png') }}" alt="Image 1" class="positioned-image" id="exhaust">
@@ -25,6 +24,8 @@
         <img src="{{ url_for('static', filename='images/exhaust_n.png') }}" alt="Image 1" class="positioned-image" id="exhaust">
         <h1>text text text</h1>
     </div> -->
+    
+    <img style="float:right;" src= "{{ url_for('static', filename='images/' + meme_file) }}" width = "20%" alt="Common Image" id="meme">
     {% for option in datadict %}
         <h2>{{ option }}</h2>
         <table>
@@ -45,10 +46,41 @@
         </table>
     {% endfor %}
 
+    <div style="float: right; width: 30%;">
+        <h3>Fun Fact</h3>
+        <p id="funFact" style="padding: 10px; border: 2px solid #8e8787; border-radius: 5px; background-color: #8e8787;"></p>
+    </div>
+    
+    <script>
+        const facts = [
+            "Did you know that Swiss trains only have an average passenger load of 23.9%?",
+            "Did you know that Switzerland has one of the most punctual railway systems in the world?",
+            "Did you know that commuting from Zurich to Bern by train instead of a car saves around 15-20 kg of greenhouse gases per ride?",
+            "Did you know that Park&Ride facilities are available at 600 train stations in Switzerland?",
+            "Did you know that the average delay of a train in Switzerland is 1.2 minutes?",
+            "Did you know that on an annual basis, swiss people lose 150 hours being stuck in traffic jams?"  
+        ];
+    
+        // Fisher-Yates (Knuth) Shuffle algorithm to shuffle the facts array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+    
+        const shuffledFacts = shuffleArray(facts);
+    
+        // Display random facts
+        document.getElementById("funFact").textContent = shuffledFacts[0];
+    </script>
+    
+    
     <h1>Map with Markers</h1>
 
     <!-- Embed the Folium map HTML using iframe -->
-    <iframe src="{{ url_for('static', filename='map_with_markers_and_route.html') }}" width="60%" height="600px" frameborder="0"></iframe>
-
+    <iframe src="{{ url_for('static', filename='map_with_markers_and_route.html') }}" width="60%" height="400px" frameborder="0"></iframe>
+    <a href="/">Go back to the homepage</a>
 </body>
 </html>

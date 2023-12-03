@@ -1,8 +1,8 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 from geopy.geocoders import Nominatim
 import folium
-from compare import compare_connections
 from dateutil import parser
+from compare import compare_connections
 
 
 def format_time(timestamp):
@@ -53,7 +53,8 @@ def make_map_html(route_sbb, route_car, route_combi1, route_combi2):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    error = request.args.get('error', False)
+    return render_template('index.html', error=error)
 
 
 @app.route('/submit', methods=['POST'])
@@ -68,7 +69,11 @@ def submit():
         data_input_combined = str(data_start) + " - " + str(data_dest)
         origin = [processed_data['start_long'], processed_data['start_lat']]
         destination = [processed_data['dest_long'], processed_data['dest_lat']]
-        sbb_data, car_data, combi_data = compare_connections(origin, destination, data_time)
+        try:
+            sbb_data, car_data, combi_data = compare_connections(origin, destination, data_time)
+        except Exception as e:
+            print(e)
+            return redirect(url_for('index', error=True))
         route_sbb = sbb_data['route']
         duration_sbb = sbb_data['duration']
         route_car = car_data[0]
@@ -76,13 +81,18 @@ def submit():
         route_combi_car = combi_data['route_car']
         route_combi_sbb = combi_data['route']
         duration_combi = combi_data['duration_total']
-        duration_combi = combi_data['duration_total']
         changing_points_sbb = sbb_data['changing_points']
         changing_times_sbb = [format_time(el) for el in sbb_data['changing_times']]
         changing_points_combi = combi_data['changing_points']
         changing_times_combi = [format_time(el) for el in combi_data['changing_times']]
-        print(changing_points_combi)
 
+        if duration_car < duration_combi and duration_car < duration_sbb:
+            meme_file = "meme1.jpg"
+        if duration_combi < duration_car and duration_combi < duration_sbb:
+            meme_file = "meme2.jpg"
+        else:
+            meme_file = "meme3.jpg"
+        
         make_map_html(route_sbb, route_car, route_combi_car, route_combi_sbb)
         return render_template('result.html',
                                 data_input=data_input_combined,
@@ -90,7 +100,8 @@ def submit():
                                     f"SBB - {duration_sbb:.0f} min": {key: value for key, value in zip(changing_points_sbb, changing_times_sbb)},
                                     f"Car - {duration_car:.0f} min": '-',
                                     f"Combi - {duration_combi:.0f} min": {key: value for key, value in zip(changing_points_combi, changing_times_combi)}
-                                    }
+                                    },
+                                meme_file=meme_file
                                 )
 
 
