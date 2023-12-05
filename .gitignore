@@ -6,5 +6,5 @@ Switzerland_shapefile/
 *.ipynb
 *.json
 *.mov
-images/
+/images/
 static/map_with_markers_and_route.html
