@@ -3,9 +3,8 @@
 .DS_Store
 __pycache__/
 Switzerland_shapefile/
-*.png
-*.jpg
 *.ipynb
 *.json
 *.mov
+images/
 static/map_with_markers_and_route.html
